@@ -33,19 +33,44 @@ public class Home {
 
     @FXML
     public void accedi(ActionEvent actionEvent) {
-        // Get data from the form
-        int id = parseInt(codiceIstituto.getText());
-        String nome = nomeStudente.getText();
-        String cognome = cognomeStudente.getText();
+        // Clear previous error messages
+        errorMessage.setText("");
 
-        // Check if the student already exists in the database
-        if (studentExists(id, nome, cognome)) {
-            // Allow access to the application (you can add your logic here)
-            errorMessage.setText("Access granted!");
-        } else {
-            // Deny access to the application (you can add your logic here)
-            errorMessage.setText("Access denied! Student not found.");
+        try {
+            // Get data from the form
+            int id;
+            try {
+                id = Integer.parseInt(codiceIstituto.getText());
+            } catch (NumberFormatException e) {
+                errorMessage.setText("Invalid ID. Please enter a valid numeric value.");
+                return; // Stop further processing
+            }
+
+            // Check for non-empty and non-numeric values for nome and cognome
+            String nome = nomeStudente.getText().trim();
+            String cognome = cognomeStudente.getText().trim();
+
+            if (nome.isEmpty() || cognome.isEmpty() || isNumeric(nome) || isNumeric(cognome)) {
+                errorMessage.setText("Please enter valid values for both name and surname.");
+                return; // Stop further processing
+            }
+
+            // Check if the student already exists in the database
+            if (studentExists(id, nome, cognome)) {
+                // Allow access to the application (you can add your logic here)
+                errorMessage.setText("Access granted!");
+            } else {
+                // Deny access to the application (you can add your logic here)
+                errorMessage.setText("Access denied! Student not found.");
+            }
+        } catch (Exception e) {
+            errorMessage.setText("An error occurred. Please try again later.");
+            e.printStackTrace(); // Log the exception
         }
+    }
+
+    private boolean isNumeric(String str) {
+        return str.matches("-?\\d+(\\.\\d+)?");
     }
 
     private boolean studentExists(int id, String nome, String cognome) {
@@ -61,8 +86,8 @@ public class Home {
                 }
             }
         } catch (SQLException e) {
+            // Handle the exception appropriately (e.g., show an error message or log it)
             e.printStackTrace();
-            // Handle the exception appropriately (e.g., show an error message)
         }
         return false;
     }
