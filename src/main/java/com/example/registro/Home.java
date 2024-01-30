@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-
+import javafx.scene.control.Label;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,6 +15,8 @@ import static java.lang.Integer.parseInt;
 
 public class Home {
     //variables
+    @FXML
+    private Label errorMessage;
     @FXML
     private TextField codiceIstituto;
 
@@ -39,10 +41,10 @@ public class Home {
         // Check if the student already exists in the database
         if (studentExists(id, nome, cognome)) {
             // Allow access to the application (you can add your logic here)
-            System.out.println("Access granted!");
+            errorMessage.setText("Access granted!");
         } else {
             // Deny access to the application (you can add your logic here)
-            System.out.println("Access denied! Student not found.");
+            errorMessage.setText("Access denied! Student not found.");
         }
     }
 
