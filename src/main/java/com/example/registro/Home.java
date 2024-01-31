@@ -58,10 +58,10 @@ public class Home {
             // Check if the student already exists in the database
             if (studentExists(id, nome, cognome)) {
                 // Allow access to the application (you can add your logic here)
-                errorMessage.setText("Access granted!");
+                errorMessage.setText("Studente Trovato");
             } else {
                 // Deny access to the application (you can add your logic here)
-                errorMessage.setText("Access denied! Student not found.");
+                errorMessage.setText("Studente non trovato, riguardi id, nome o cognome");
             }
         } catch (Exception e) {
             errorMessage.setText("An error occurred. Please try again later.");
@@ -82,7 +82,7 @@ public class Home {
                 preparedStatement.setString(3, cognome);
 
                 try (var resultSet = preparedStatement.executeQuery()) {
-                    return resultSet.next(); // If the result set has a next row, the student exists
+                    return resultSet.next(); // If the result set has a next row, the student exists return true or false
                 }
             }
         } catch (SQLException e) {
