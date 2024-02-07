@@ -10,6 +10,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.layout.AnchorPane;
+
+import java.io.IOException;
 
 import static java.lang.Integer.parseInt;
 
@@ -17,13 +22,18 @@ public class Home {
     //variables
     @FXML
     private Label errorMessage;
+
     @FXML
     private TextField codiceIstituto;
 
     @FXML
     private TextField nomeStudente;
+
     @FXML
     private TextField cognomeStudente;
+
+    @FXML
+    private AnchorPane homeScene;
 
 
     // JDBC database URL, username, and password of MySQL server
@@ -92,8 +102,18 @@ public class Home {
         return false;
     }
 
+
+
+    @FXML
+    void switchToSignUp(ActionEvent event) throws IOException {
+
+        new SceneController(homeScene, "SignUp.fxml");
+
+    }
+
     @FXML
     void initialize() {
         // Initialization code (if any)
     }
+
 }
