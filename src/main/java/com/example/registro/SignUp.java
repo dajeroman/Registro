@@ -41,7 +41,11 @@ public class SignUp {
     Random randomId = new Random();
 
     //I miei variabili
+
+    //ID variabili
     private boolean ottieni_ID_pressed;
+    private boolean idExist;
+    private int generatedID = 0;
     int[] randArray = new int[9];
 
 
@@ -68,19 +72,27 @@ public class SignUp {
         }
     }
 
-    void getID(){//restituisce guesto numero
-        for (int number : randArray) {
-            idLabel.setText(String.valueOf(number));
+
+    //check getId ha variabile int generateID tipo creamo di nuovo ma esiste sopra(riguardi)
+    void getID() { // Restituisce un nuovo ID che non esista già nel database
+        generateID(); // Genera un nuovo ID
+
+        for (int generatedID : randArray) {
+            if (!idExists(generatedID)) { // Se l'ID generato non esiste già
+                idLabel.setText(String.valueOf(generatedID)); // Imposta il nuovo ID nella label
+                return; // Esci dal metodo
+            }
         }
+
+        // Se tutti gli ID generati esistono già nel database, genera un nuovo set di ID
+        getID();
     }
 
+
     @FXML
-    void generateID(ActionEvent event) {
+    void generateID(ActionEvent event) {//buttone "ottieni ID"
         generateID();
         getID();
-        String nome = nameInput.getText().trim();
-        String cognome = surnameInput.getText().trim();
-
     }
 
     //SQL Funzioni
