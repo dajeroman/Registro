@@ -12,6 +12,8 @@ import java.util.Random;
 
 import javafx.scene.control.TextField;
 
+import static java.lang.System.*;
+
 
 public class SignUp {
 
@@ -35,6 +37,9 @@ public class SignUp {
     private Label nomeError;
 
     @FXML
+    private Label studenteAggiunto;
+
+    @FXML
     private TextField surnameInput;
 
     //Tutti classi
@@ -44,8 +49,8 @@ public class SignUp {
 
     //ID variabili
     private boolean ottieni_ID_pressed;
-    private boolean idExist;
-    private int generatedID = 0;
+    private boolean boolIDExist;
+//    private int generatedID = 0;
     int[] randArray = new int[9];
 
 
@@ -81,6 +86,7 @@ public class SignUp {
             if (!idExists(generatedID)) { // Se l'ID generato non esiste già
                 idLabel.setText(String.valueOf(generatedID)); // Imposta il nuovo ID nella label
                 return; // Esci dal metodo
+//                System.out.println("sono dal void - getID" + generatedID);
             }
         }
 
@@ -90,9 +96,10 @@ public class SignUp {
 
 
     @FXML
-    void generateID(ActionEvent event) {//buttone "ottieni ID"
+    void buttGenerateID(ActionEvent event) {//buttone "ottieni ID"
         generateID();
         getID();
+        boolIDExist = true; // Imposta boolIDExist a true poiché hai ottenuto correttamente un nuovo ID
     }
 
     //SQL Funzioni
@@ -103,7 +110,8 @@ public class SignUp {
                 preparedStatement.setInt(1, id);
 
                 try (var resultSet = preparedStatement.executeQuery()) {
-                    return resultSet.next(); // If the result set has a next row, the student exists return true or false
+                    boolIDExist = resultSet.next(); // Imposta boolIDExist a true se l'ID esiste già
+                    return boolIDExist;
                 }
             }
         } catch (SQLException e) {
@@ -118,13 +126,12 @@ public class SignUp {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
             String sql = "INSERT INTO registro (id, nome, cognome) VALUES (?, ?, ?)";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, nome);
+                preparedStatement.setInt(1, id);
                 preparedStatement.setString(2, nome);
                 preparedStatement.setString(3, cognome);
 
-                try (var resultSet = preparedStatement.executeQuery()) {
-                    return resultSet.next(); // If the result set has a next row, the student exists return true or false
-                }
+                int rowsAffected = preparedStatement.executeUpdate(); // Use executeUpdate() instead of executeQuery()
+                return rowsAffected > 0; // Return true if rows were affected
             }
         } catch (SQLException e) {
             // Handle the exception appropriately (e.g., show an error message or log it)
@@ -134,7 +141,47 @@ public class SignUp {
     }
 
 
-    public void addStudent(ActionEvent actionEvent) {//agiunge nuovo studente
 
+    public void addStudent(ActionEvent actionEvent) { // Aggiunge un nuovo studente al database
+        if (!boolIDExist) { // Verifica se l'ID è stato ottenuto
+            idError.setText("Prima di aggiungere uno studente, ottieni un ID."); // Imposta il messaggio di errore nella label
+            return; // Esci dal metodo
+        }
+
+        String nome = nameInput.getText(); // Ottieni il nome dello studente dalla text field
+        String cognome = surnameInput.getText(); // Ottieni il cognome dello studente dalla text field
+        int id = Integer.parseInt(idLabel.getText());
+
+        // Verifica se lo studente esiste già nel database
+        if (studentExists(id, nome, cognome)) {
+            idError.setText("Lo studente esiste già nel database."); // Imposta il messaggio di errore nella label
+            return; // Esci dal metodo
+        }
+
+        try {
+            // Connessione al database e inserimento dello studente
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            String sql = "INSERT INTO registro (id, nome, cognome) VALUES (?, ?, ?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setInt(1, id); // Utilizza l'ID ottenuto
+                preparedStatement.setString(2, nome);
+                preparedStatement.setString(3, cognome);
+
+                preparedStatement.executeUpdate(); // Esegui l'operazione di inserimento
+            }
+
+            // Pulisci la label di errore
+            idError.setText("");
+
+            // Aggiunta dello studente completata con successo
+            out.println("Studente aggiunto con successo al database.");
+            studenteAggiunto.setText("Studente aggiunto con successo al database.");
+        } catch (SQLException e) {
+            // Gestisci l'eccezione in modo appropriato (ad esempio, mostra un messaggio di errore o registralo)
+            e.printStackTrace();
+        }
     }
+
+
+
 }
